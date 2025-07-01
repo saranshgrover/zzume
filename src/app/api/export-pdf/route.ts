@@ -1,5 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
+import puppeteerCore from 'puppeteer-core'
+import chromium from '@sparticuz/chromium-min'
+
+export const dynamic = 'force-dynamic'
+
+const remoteExecutablePath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar'
+
+let browser: any
+
+async function getBrowser() {
+  if (browser) return browser
+
+  if (process.env.NEXT_PUBLIC_VERCEL_ENVIRONMENT === 'production') {
+    browser = await puppeteerCore.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(remoteExecutablePath),
+      headless: true,
+    })
+  } else {
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true,
+    })
+  }
+  return browser
+}
 
 export async function POST(request: NextRequest) {
   console.log('🚀 PDF export request started')
@@ -25,39 +51,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Launch Puppeteer with Vercel-compatible configuration
-    console.log('🌐 Launching Puppeteer browser...')
-    
-    // Use the Chrome binary that Vercel provides
-    // Vercel provides Chrome at this path in their serverless environment
-    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
-    console.log('🔧 Puppeteer executable path:', executablePath)
-    
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor',
-        '--disable-background-timer-throttling',
-        '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding',
-        '--disable-field-trial-config',
-        '--disable-ipc-flooding-protection'
-      ]
-    })
-    console.log('✅ Browser launched successfully')
+    // Get browser instance using the new configuration
+    console.log('🌐 Getting browser instance...')
+    const browserInstance = await getBrowser()
+    console.log('✅ Browser instance obtained')
 
     console.log('📄 Creating new page...')
-    const page = await browser.newPage()
+    const page = await browserInstance.newPage()
     console.log('✅ New page created')
     
     // Set viewport for consistent rendering
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Inject the data into the page using page.evaluate
     console.log('📝 Injecting resume data into page...')
-    await page.evaluate((data) => {
+    await page.evaluate((data: { resumeData: any; globalSettings: any }) => {
       // Store the data in window object so the page can access it
       (window as unknown as Record<string, unknown>).resumeData = data.resumeData
       ;(window as unknown as Record<string, unknown>).globalSettings = data.globalSettings
@@ -129,9 +129,9 @@ export async function POST(request: NextRequest) {
     })
     console.log('✅ PDF generated, buffer size:', pdfBuffer.length)
 
-    console.log('🔒 Closing browser...')
-    await browser.close()
-    console.log('✅ Browser closed')
+    console.log('🔒 Closing page...')
+    await page.close()
+    console.log('✅ Page closed')
 
     // Generate filename from personal info
     const name = resumeData.personalInfo.name
