@@ -4,7 +4,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useResumeStore } from '@/lib/store';
+import { useResumeStore, GlobalSettings } from '@/lib/store';
 import { useState, useEffect } from 'react';
 import { Settings, Type, Ruler, ChevronDown, MoveVertical } from 'lucide-react';
 
@@ -89,7 +89,7 @@ function Select({ value, onValueChange, options, placeholder }: {
   );
 }
 
-function ResumeLayoutChart({ globalSettings }: { globalSettings: any }) {
+function ResumeLayoutChart({ globalSettings }: { globalSettings: GlobalSettings }) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center" style={{ width: '90%', height: '400px' }}>
       <h4 className="text-sm font-medium text-gray-900 mb-3">Layout Preview</h4>
@@ -148,7 +148,7 @@ function ResumeLayoutChart({ globalSettings }: { globalSettings: any }) {
   );
 }
 
-function TypographyChart({ globalSettings }: { globalSettings: any }) {
+function TypographyChart({ globalSettings }: { globalSettings: GlobalSettings }) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4">
       <h4 className="text-sm font-medium text-gray-900 mb-3">Typography Preview</h4>
@@ -198,12 +198,12 @@ export default function SettingsDialog() {
   const { globalSettings, setGlobalSettings } = useResumeStore();
   const [open, setOpen] = useState(false);
 
-  const updateSettings = (path: string, value: any) => {
+  const updateSettings = (path: string, value: string | number) => {
     const keys = path.split('.');
     const newSettings = { ...globalSettings };
-    let current: any = newSettings;
+    let current: Record<string, unknown> = newSettings;
     for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
+      current = current[keys[i] as keyof typeof current] as Record<string, unknown>;
     }
     current[keys[keys.length - 1]] = value;
     setGlobalSettings(newSettings);

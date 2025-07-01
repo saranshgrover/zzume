@@ -6,7 +6,7 @@ interface ResumeContentProps {
   isPDF?: boolean
 }
 
-export default function ResumeContent({ resumeData, globalSettings, isPDF = false }: ResumeContentProps) {
+export default function ResumeContent({ resumeData, globalSettings }: ResumeContentProps) {
   // Helper function to format dates consistently
   const formatDate = (dateString: string) => {
     if (!dateString) return ''

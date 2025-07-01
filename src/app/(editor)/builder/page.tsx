@@ -15,16 +15,13 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { GripVertical } from 'lucide-react'
 import DownloadButton from '@/components/DownloadButton'
 
-function Placeholder({ label }: { label: string }) {
-  return (
-    <div className="border rounded p-8 text-center text-gray-400">{label} form coming soon…</div>
-  )
-}
+
+import '../../globals.css'
 
 
 
 export default function ResumeBuilderPage() {
-  const { resumeData, addExperience, updateExperience, removeExperience, removeEducation, reorderExperience, reorderEducation, reorderSections, updateSkills } = useResumeStore()
+  const { resumeData, removeExperience, removeEducation, reorderExperience, reorderEducation, reorderSections, updateSkills } = useResumeStore()
   const [open, setOpen] = useState<{ personal: boolean; exp: boolean; edu: boolean; skills: boolean }>({ personal: false, exp: false, edu: false, skills: false })
   const [expanded, setExpanded] = useState<string | null>(null)
   const [editId, setEditId] = useState<string | null>(null)

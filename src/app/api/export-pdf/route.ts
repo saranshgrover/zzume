@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
     console.log('📝 Injecting resume data into page...')
     await page.evaluate((data) => {
       // Store the data in window object so the page can access it
-      (window as any).resumeData = data.resumeData
-      ;(window as any).globalSettings = data.globalSettings
+      (window as unknown as Record<string, unknown>).resumeData = data.resumeData
+      ;(window as unknown as Record<string, unknown>).globalSettings = data.globalSettings
     }, { resumeData, globalSettings })
     console.log('✅ Data injected successfully')
 

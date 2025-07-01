@@ -45,12 +45,12 @@ export default function PDFTemplate() {
   useEffect(() => {
     // Check if data is available in window object (injected by Puppeteer)
     const checkForData = () => {
-      const windowAny = window as any
+      const windowAny = window as unknown as Record<string, unknown>
       if (windowAny.resumeData && windowAny.globalSettings) {
         console.log('📄 Found resume data in window object:', windowAny.resumeData)
         console.log('⚙️ Found global settings in window object:', windowAny.globalSettings)
-        setResumeData(windowAny.resumeData)
-        setGlobalSettings(windowAny.globalSettings)
+        setResumeData(windowAny.resumeData as ResumeData)
+        setGlobalSettings(windowAny.globalSettings as GlobalSettings)
         setIsLoading(false)
       } else {
         // If no data found, try again after a short delay
