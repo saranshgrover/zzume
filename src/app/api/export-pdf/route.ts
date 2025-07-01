@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
 
 export async function POST(request: NextRequest) {
   console.log('🚀 PDF export request started')
@@ -25,13 +25,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Launch Puppeteer
+    // Launch Puppeteer with Vercel-compatible configuration
     console.log('🌐 Launching Puppeteer browser...')
-    console.log('🔧 Puppeteer executable path:', process.env.PUPPETEER_EXECUTABLE_PATH || 'default')
+    
+    // Use the Chrome binary that Vercel provides
+    // Vercel provides Chrome at this path in their serverless environment
+    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
+    console.log('🔧 Puppeteer executable path:', executablePath)
     
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      executablePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -42,7 +46,12 @@ export async function POST(request: NextRequest) {
         '--single-process',
         '--disable-gpu',
         '--disable-web-security',
-        '--disable-features=VizDisplayCompositor'
+        '--disable-features=VizDisplayCompositor',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--disable-field-trial-config',
+        '--disable-ipc-flooding-protection'
       ]
     })
     console.log('✅ Browser launched successfully')
@@ -142,6 +151,19 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('PDF generation error:', error)
+    
+    // Check if it's a Chrome binary issue
+    if (error instanceof Error && error.message.includes('Could not find Chrome')) {
+      console.error('Chrome binary not found. This is likely a deployment environment issue.')
+      return NextResponse.json(
+        { 
+          error: 'PDF generation service temporarily unavailable. Please try again later.',
+          details: 'Chrome binary not found in deployment environment'
+        },
+        { status: 503 }
+      )
+    }
+    
     return NextResponse.json(
       { error: 'Failed to generate PDF' },
       { status: 500 }
