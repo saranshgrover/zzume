@@ -7,6 +7,59 @@ export const dynamic = 'force-dynamic'
 
 const remoteExecutablePath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar'
 
+// Define proper types for the resume data
+interface PersonalInfo {
+  name: string
+  email?: string
+  phone?: string
+  location?: string
+  summary?: string
+}
+
+interface Experience {
+  id: string
+  company: string
+  position: string
+  startDate: string
+  endDate?: string
+  description: string
+}
+
+interface Education {
+  id: string
+  institution: string
+  degree: string
+  field: string
+  startDate: string
+  endDate?: string
+  gpa?: string
+}
+
+interface Skill {
+  id: string
+  name: string
+  level: number
+}
+
+interface ResumeData {
+  personalInfo: PersonalInfo
+  experience: Experience[]
+  education: Education[]
+  skills: Skill[]
+}
+
+interface GlobalSettings {
+  fontSize?: number
+  lineSpacing?: number
+  margin?: number
+}
+
+interface ResumeRequestData {
+  resumeData: ResumeData
+  globalSettings: GlobalSettings
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let browser: any
 
 async function getBrowser() {
@@ -31,7 +84,7 @@ export async function POST(request: NextRequest) {
   console.log('🚀 PDF export request started')
   
   try {
-    const { resumeData, globalSettings } = await request.json()
+    const { resumeData, globalSettings }: ResumeRequestData = await request.json()
     console.log('📄 Received resume data:', {
       hasPersonalInfo: !!resumeData.personalInfo,
       hasName: !!resumeData.personalInfo?.name,
@@ -87,7 +140,7 @@ export async function POST(request: NextRequest) {
 
     // Inject the data into the page using page.evaluate
     console.log('📝 Injecting resume data into page...')
-    await page.evaluate((data: { resumeData: any; globalSettings: any }) => {
+    await page.evaluate((data: ResumeRequestData) => {
       // Store the data in window object so the page can access it
       (window as unknown as Record<string, unknown>).resumeData = data.resumeData
       ;(window as unknown as Record<string, unknown>).globalSettings = data.globalSettings
