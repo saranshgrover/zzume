@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import puppeteer from 'puppeteer'
-import puppeteerCore from 'puppeteer-core'
-import chromium from '@sparticuz/chromium-min'
 
 export const dynamic = 'force-dynamic'
-
-const remoteExecutablePath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar'
 
 // Define proper types for the resume data
 interface PersonalInfo {
@@ -65,18 +61,18 @@ let browser: any
 async function getBrowser() {
   if (browser) return browser
 
-  if (process.env.NEXT_PUBLIC_VERCEL_ENVIRONMENT === 'production') {
-    browser = await puppeteerCore.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(remoteExecutablePath),
-      headless: true,
-    })
-  } else {
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-    })
-  }
+  browser = await puppeteer.launch({
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process'
+    ],
+    headless: true,
+  })
   return browser
 }
 

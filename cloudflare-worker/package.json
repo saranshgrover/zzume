@@ -1,0 +1,16 @@
+{
+  "name": "resume-pdf-generator",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for generating resume PDFs",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev --remote",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/puppeteer": "^1.0.0",
+    "@cloudflare/workers-types": "^4.0.0",
+    "typescript": "^5.0.0",
+    "wrangler": "^3.0.0"
+  }
+} 

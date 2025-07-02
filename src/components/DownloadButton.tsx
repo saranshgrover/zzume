@@ -1,6 +1,7 @@
 'use client'
 
 import { useResumeStore } from '@/lib/store'
+import { config } from '@/lib/config'
 import { Button } from '@/components/ui/button'
 import { Download } from 'lucide-react'
 import { useState } from 'react'
@@ -18,7 +19,10 @@ export default function DownloadButton() {
     setIsLoading(true)
     
     try {
-      const response = await fetch('/api/export-pdf', {
+      // Use Cloudflare Worker in production, local API in development
+      const apiUrl = config.useLocalPdfApi ? '/api/export-pdf' : config.pdfWorkerUrl
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
