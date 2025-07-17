@@ -12,6 +12,7 @@ export type NestedFieldConfig = {
 
 
 export interface TemplateDefinition {
+  id?: string
   name: string
   description: string
   category: string
@@ -192,6 +193,64 @@ export const TEMPLATE_DEFINITIONS: Record<string, TemplateDefinition> = {
       },
     },
   },
+  academic: {
+    name: 'Academic',
+    description: 'Scholarly and research-focused resume template',
+    category: 'academic' as const,
+    settings: {
+      margin: {
+        top: { type: 'slider', min: 24, max: 144, step: 4 },
+        bottom: { type: 'slider', min: 24, max: 144, step: 4 },
+        left: { type: 'slider', min: 24, max: 144, step: 4 },
+        right: { type: 'slider', min: 24, max: 144, step: 4 },
+      },
+      typography: {
+        heading: {
+          fontFamily: { type: 'select', options: 'fontFamilies' },
+          fontSize: { type: 'select', options: 'fontSizes' },
+        },
+        body: {
+          fontFamily: { type: 'select', options: 'fontFamilies' },
+          fontSize: { type: 'select', options: 'fontSizes' },
+        },
+        subheading: {
+          fontFamily: { type: 'select', options: 'fontFamilies' },
+          fontSize: { type: 'select', options: 'fontSizes' },
+        },
+        sectionHeading: {
+          fontFamily: { type: 'select', options: 'fontFamilies' },
+          fontSize: { type: 'select', options: 'fontSizes' },
+        },
+      },
+      spacing: {
+        sectionHeading: {
+          top: { type: 'slider', min: 0, max: 48, step: 4 },
+          bottom: { type: 'slider', min: 0, max: 48, step: 4 },
+        },
+        listItem: {
+          bottom: { type: 'slider', min: 0, max: 24, step: 2 },
+        },
+        list: {
+          bottom: { type: 'slider', min: 0, max: 32, step: 2 },
+        },
+        descriptionList: {
+          spacing: { type: 'slider', min: 0, max: 16, step: 2 },
+        },
+        header: {
+          bottom: { type: 'slider', min: 0, max: 24, step: 2 },
+        },
+      },
+      colors: {
+        primary: { type: 'color' },
+        secondary: { type: 'color' },
+      },
+      layout: {
+        headerStyle: { type: 'select', options: 'headerStyles' },
+        compactSpacing: { type: 'checkbox' },
+        publicationStyle: { type: 'select', options: 'publicationStyles' },
+      },
+    },
+  },
 } as const
 
 export interface BaseSettings {
@@ -275,6 +334,17 @@ export interface MinimalSettings extends BaseSettings {
   }
 }
 
-// Union type for all templates
-export type TemplateSettings = ProfessionalSettings | CreativeSettings | MinimalSettings
+export interface AcademicSettings extends BaseSettings {
+  colors: {
+    primary: string
+    secondary: string
+  }
+  layout: {
+    headerStyle: 'minimal'
+    compactSpacing: boolean
+    publicationStyle: 'apa' | 'mla' | 'chicago'
+  }
+}
+
+export type TemplateSettings = ProfessionalSettings | CreativeSettings | MinimalSettings | AcademicSettings
 

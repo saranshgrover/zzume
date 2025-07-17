@@ -3,6 +3,7 @@ import { useResumeStore } from '@/lib/store'
 import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { DateInput } from '@/components/ui/date-input'
 
 interface EducationFormProps {
   education?: {
@@ -84,18 +85,16 @@ export default function EducationForm({ education, onClose }: EducationFormProps
           onChange={e => handleChange('field', e.target.value)} 
         />
         <div className="flex gap-3">
-          <Input 
-            type="text" 
-            placeholder="Start Date" 
+          <DateInput 
+            placeholder="Start Date (MM/YYYY)" 
             value={form.startDate} 
-            onChange={e => handleChange('startDate', e.target.value)} 
+            onChange={value => handleChange('startDate', value)} 
             className="flex-1" 
           />
-          <Input 
-            type="text" 
-            placeholder="End Date" 
+          <DateInput 
+            placeholder="End Date (MM/YYYY)" 
             value={form.endDate} 
-            onChange={e => handleChange('endDate', e.target.value)} 
+            onChange={value => handleChange('endDate', value)} 
             className="flex-1" 
           />
         </div>

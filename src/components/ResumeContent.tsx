@@ -1,6 +1,7 @@
 import { GlobalSettings, ResumeData } from '@/lib/store'
 import { CreativeSettings, MinimalSettings, ProfessionalSettings } from '@/lib/templateGenerator'
 import { useTemplateStore } from '@/lib/templateStore'
+import { parse, format, isValid } from 'date-fns'
 
 interface ResumeContentProps {
   resumeData: ResumeData
@@ -24,11 +25,47 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
   
   const formatDate = (dateString: string) => {
     if (!dateString) return ''
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short' 
-    })
+    if (dateString.toLowerCase() === 'present' || dateString.toLowerCase() === 'current' || dateString.toLowerCase() === 'now') {
+      return 'Present'
+    }
+    // Try MM/YYYY
+    let parsed
+    parsed = parse(dateString, 'MM/yyyy', new Date())
+    if (isValid(parsed) && dateString.match(/^\d{2}\/\d{4}$/)) {
+      return format(parsed, 'MMM yyyy')
+    }
+    // Try MM/DD/YYYY
+    parsed = parse(dateString, 'MM/dd/yyyy', new Date())
+    if (isValid(parsed) && dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      return format(parsed, 'MMM yyyy')
+    }
+    // Try YYYY-MM-DD
+    parsed = parse(dateString, 'yyyy-MM-dd', new Date())
+    if (isValid(parsed) && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return format(parsed, 'MMM yyyy')
+    }
+    // Try YYYY-MM
+    parsed = parse(dateString, 'yyyy-MM', new Date())
+    if (isValid(parsed) && dateString.match(/^\d{4}-\d{2}$/)) {
+      return format(parsed, 'MMM yyyy')
+    }
+    // Try Month YYYY (e.g., January 2023)
+    parsed = parse(dateString, 'MMMM yyyy', new Date())
+    if (isValid(parsed)) {
+      return format(parsed, 'MMM yyyy')
+    }
+    // Try abbreviated Month YYYY (e.g., Jan 2023)
+    parsed = parse(dateString, 'MMM yyyy', new Date())
+    if (isValid(parsed)) {
+      return format(parsed, 'MMM yyyy')
+    }
+    // Try just year
+    parsed = parse(dateString, 'yyyy', new Date())
+    if (isValid(parsed) && dateString.match(/^\d{4}$/)) {
+      return format(parsed, 'yyyy')
+    }
+    // fallback
+    return dateString
   }
 
   // Template-specific rendering functions

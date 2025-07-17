@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useTemplateStore } from '@/lib/templateStore'
 import { TemplateCategory } from '@/lib/templateTypes'
-import { Palette, Briefcase, Sparkles, FileText } from 'lucide-react'
+import { Palette, Briefcase, Sparkles, FileText, GraduationCap } from 'lucide-react'
 
 const categoryIcons = {
   professional: Briefcase,
   creative: Palette,
   minimal: FileText,
-  academic: Sparkles
+  academic: GraduationCap
 }
 
 const categoryLabels = {
@@ -63,7 +63,7 @@ export default function TemplateSelector() {
                 All Templates
               </Button>
               {Object.entries(categoryLabels).map(([category, label]) => {
-                const Icon = categoryIcons[category as TemplateCategory]
+                const Icon = categoryIcons[category as keyof typeof categoryIcons]
                 return (
                   <Button
                     key={category}
@@ -86,15 +86,15 @@ export default function TemplateSelector() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {filteredTemplates.map((template) => {
                 const Icon = categoryIcons[template.category as keyof typeof categoryIcons]
-                const isSelected = selectedTemplate === template.name
+                const isSelected = selectedTemplate === template.id
                 
                 return (
                   <Card 
-                    key={template.name}
+                    key={template.id}
                     className={`cursor-pointer transition-all hover:shadow-md hover:scale-105 ${
                       isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                     }`}
-                    onClick={() => handleTemplateSelect(template.name)}
+                    onClick={() => handleTemplateSelect(template.id ?? '')}
                   >
                     <CardContent className="p-4 flex flex-col justify-between gap-4">
                         {/* Preview Area */}
