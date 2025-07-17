@@ -1,4 +1,6 @@
 import { GlobalSettings, ResumeData } from '@/lib/store'
+import { TemplateSettings, ProfessionalSettings, CreativeSettings, MinimalSettings } from '@/lib/templateTypes'
+import { useTemplateStore } from '@/lib/templateStore'
 
 interface ResumeContentProps {
   resumeData: ResumeData
@@ -7,7 +9,19 @@ interface ResumeContentProps {
 }
 
 export default function ResumeContent({ resumeData, globalSettings }: ResumeContentProps) {
-  // Helper function to format dates consistently
+  const { selectedTemplate, isHydrated } = useTemplateStore()
+  
+  // Don't render until template store is hydrated
+  if (!isHydrated) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Loading template...</p>
+        </div>
+      </div>
+    )
+  }
+  
   const formatDate = (dateString: string) => {
     if (!dateString) return ''
     const date = new Date(dateString)
@@ -17,65 +31,248 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
     })
   }
 
+  // Template-specific rendering functions
+  const renderProfessionalHeader = () => {
+    const settings = globalSettings as ProfessionalSettings
+    return (
+      <section aria-label="Personal Information" className="text-center">
+        <h1 
+          className="font-bold" 
+          style={{ 
+            fontFamily: settings.typography.heading.fontFamily,
+            fontSize: `${settings.typography.heading.fontSize}px`,
+            color: settings.colors.primary,
+            marginBottom: `${settings.spacing.header?.bottom}px`
+          }}
+        >
+          {resumeData.personalInfo.name || 'Your Name'}
+        </h1>
+        {[resumeData.personalInfo.email, resumeData.personalInfo.phone, resumeData.personalInfo.location].some(Boolean) && (
+          <div 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors.secondary,
+              marginBottom: `${settings.spacing.header?.bottom}px`
+            }}
+          >
+            {[
+              resumeData.personalInfo.email,
+              resumeData.personalInfo.phone,
+              resumeData.personalInfo.location
+            ].filter(Boolean).join(' | ')}
+          </div>
+        )}
+        {(resumeData.personalInfo.linkedin || resumeData.personalInfo.portfolio) && (
+          <div 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors.secondary,
+              marginBottom: `${settings.spacing.list.bottom}px`
+            }}
+          >
+            {[
+              resumeData.personalInfo.linkedin && `LinkedIn: ${resumeData.personalInfo.linkedin}`,
+              resumeData.personalInfo.portfolio && `Portfolio: ${resumeData.personalInfo.portfolio}`
+            ].filter(Boolean).join(' | ')}
+          </div>
+        )}
+        {resumeData.personalInfo.summary && (
+          <p 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors.primary,
+              marginBottom: `${settings.spacing.list.bottom}px`
+            }}
+          >
+            {resumeData.personalInfo.summary}
+          </p>
+        )}
+      </section>
+    )
+  }
+
+  const renderCreativeHeader = () => {
+    const settings = globalSettings as CreativeSettings
+    return (
+      <section aria-label="Personal Information" className="relative">
+        {settings.layout?.backgroundPattern === 'dots' && (
+          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+        )}
+        <h1 
+          className="font-bold" 
+          style={{ 
+            fontFamily: settings.typography.heading.fontFamily,
+            fontSize: `${settings.typography.heading.fontSize}px`,
+            color: settings.colors?.primary || '#000000',
+            marginBottom: `${settings.spacing.header?.bottom}px`
+          }}
+        >
+          {resumeData.personalInfo.name || 'Your Name'}
+        </h1>
+        {[resumeData.personalInfo.email, resumeData.personalInfo.phone, resumeData.personalInfo.location].some(Boolean) && (
+          <div 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors?.secondary || '#666666',
+              marginBottom: `${settings.spacing.header?.bottom}px`
+            }}
+          >
+            {[
+              resumeData.personalInfo.email,
+              resumeData.personalInfo.phone,
+              resumeData.personalInfo.location
+            ].filter(Boolean).join(' • ')}
+          </div>
+        )}
+        {(resumeData.personalInfo.linkedin || resumeData.personalInfo.portfolio) && (
+          <div 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors?.accent || '#ff6b6b',
+              marginBottom: `${settings.spacing.list.bottom}px`
+            }}
+          >
+            {[
+              resumeData.personalInfo.linkedin && `LinkedIn: ${resumeData.personalInfo.linkedin}`,
+              resumeData.personalInfo.portfolio && `Portfolio: ${resumeData.personalInfo.portfolio}`
+            ].filter(Boolean).join(' • ')}
+          </div>
+        )}
+        {resumeData.personalInfo.summary && (
+          <p 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors?.primary || '#000000',
+              marginBottom: `${settings.spacing.list.bottom}px`
+            }}
+          >
+            {resumeData.personalInfo.summary}
+          </p>
+        )}
+      </section>
+    )
+  }
+
+  const renderMinimalHeader = () => {
+    const settings = globalSettings as MinimalSettings
+    return (
+      <section aria-label="Personal Information">
+        <h1 
+          className="font-bold" 
+          style={{ 
+            fontFamily: settings.typography.heading.fontFamily,
+            fontSize: `${settings.typography.heading.fontSize}px`,
+            color: settings.colors?.primary || '#000000',
+            marginBottom: `${settings.spacing.header?.bottom}px`
+          }}
+        >
+          {resumeData.personalInfo.name || 'Your Name'}
+        </h1>
+        {[resumeData.personalInfo.email, resumeData.personalInfo.phone, resumeData.personalInfo.location].some(Boolean) && (
+          <div 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors?.secondary || '#333333',
+              marginBottom: `${settings.spacing.header?.bottom}px`
+            }}
+          >
+            {[
+              resumeData.personalInfo.email,
+              resumeData.personalInfo.phone,
+              resumeData.personalInfo.location
+            ].filter(Boolean).join(' | ')}
+          </div>
+        )}
+        {(resumeData.personalInfo.linkedin || resumeData.personalInfo.portfolio) && (
+          <div 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors?.secondary || '#333333',
+              marginBottom: `${settings.spacing.list.bottom}px`
+            }}
+          >
+            {[
+              resumeData.personalInfo.linkedin && `LinkedIn: ${resumeData.personalInfo.linkedin}`,
+              resumeData.personalInfo.portfolio && `Portfolio: ${resumeData.personalInfo.portfolio}`
+            ].filter(Boolean).join(' | ')}
+          </div>
+        )}
+        {resumeData.personalInfo.summary && (
+          <p 
+            style={{ 
+              fontFamily: settings.typography.body.fontFamily,
+              fontSize: `${settings.typography.body.fontSize}px`,
+              color: settings.colors?.primary || '#000000',
+              marginBottom: `${settings.spacing.list.bottom}px`
+            }}
+          >
+            {resumeData.personalInfo.summary}
+          </p>
+        )}
+      </section>
+    )
+  }
+
+  const renderSkills = () => {
+    if (selectedTemplate === 'creative') {
+      const settings = globalSettings as CreativeSettings
+      if (settings.layout?.skillStyle === 'tags') {
+        return (
+          <div className="flex flex-wrap gap-2">
+            {resumeData.skills.map((skill, index) => (
+              <span 
+                key={index}
+                className="px-3 py-1 rounded-full text-sm"
+                style={{
+                  backgroundColor: settings.colors?.accent || '#ff6b6b',
+                  color: 'white',
+                  fontFamily: settings.typography.body.fontFamily,
+                  fontSize: `${settings.typography.body.fontSize}px`
+                }}
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        )
+      }
+    }
+    
+    // Default list style for all templates
+    return (
+      <p 
+        style={{ 
+          fontFamily: globalSettings.typography.body.fontFamily,
+          fontSize: `${globalSettings.typography.body.fontSize}px`,
+          marginBottom: `${globalSettings.spacing.list.bottom}px`
+        }}
+      >
+        <strong>{resumeData.skills.join(', ')}</strong>
+      </p>
+    )
+  }
+
   function renderSection(sectionId: string) {
     switch (sectionId) {
       case 'personal':
-        return (
-          <section aria-label="Personal Information">
-            <h1 
-              className="font-bold" 
-              style={{ 
-                fontFamily: globalSettings.typography.heading.fontFamily,
-                fontSize: `${globalSettings.typography.heading.fontSize}px`,
-                marginBottom: `${globalSettings.spacing.header?.bottom}px`
-              }}
-            >
-              {resumeData.personalInfo.name || 'Your Name'}
-            </h1>
-            {[resumeData.personalInfo.email, resumeData.personalInfo.phone, resumeData.personalInfo.location].some(Boolean) && (
-              <div 
-                className="text-gray-600" 
-                style={{ 
-                  fontFamily: globalSettings.typography.body.fontFamily,
-                  fontSize: `${globalSettings.typography.body.fontSize}px`,
-                  marginBottom: `${globalSettings.spacing.header?.bottom}px`
-                }}
-              >
-                {[
-                  resumeData.personalInfo.email,
-                  resumeData.personalInfo.phone,
-                  resumeData.personalInfo.location
-                ].filter(Boolean).join(' | ')}
-              </div>
-            )}
-            {(resumeData.personalInfo.linkedin || resumeData.personalInfo.portfolio) && (
-              <div 
-                className="text-gray-600" 
-                style={{ 
-                  fontFamily: globalSettings.typography.body.fontFamily,
-                  fontSize: `${globalSettings.typography.body.fontSize}px`,
-                  marginBottom: `${globalSettings.spacing.list.bottom}px`
-                }}
-              >
-                {[
-                  resumeData.personalInfo.linkedin && `LinkedIn: ${resumeData.personalInfo.linkedin}`,
-                  resumeData.personalInfo.portfolio && `Portfolio: ${resumeData.personalInfo.portfolio}`
-                ].filter(Boolean).join(' | ')}
-              </div>
-            )}
-            {resumeData.personalInfo.summary && (
-              <p 
-                style={{ 
-                  fontFamily: globalSettings.typography.body.fontFamily,
-                  fontSize: `${globalSettings.typography.body.fontSize}px`,
-                  marginBottom: `${globalSettings.spacing.list.bottom}px`
-                }}
-              >
-                {resumeData.personalInfo.summary}
-              </p>
-            )}
-          </section>
-        )
+        switch (selectedTemplate) {
+          case 'professional':
+            return renderProfessionalHeader()
+          case 'creative':
+            return renderCreativeHeader()
+          case 'minimal':
+            return renderMinimalHeader()
+          default:
+            return renderMinimalHeader() // Fallback to minimal
+        }
       case 'experience':
         return (
           <section aria-label="Work Experience">
@@ -88,10 +285,11 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
                 fontWeight: 600
               }}
             >
-              Professional Experience
+              {resumeData.sectionNames?.experience || 'Experience'}
             </h2>
             <ul style={{ marginBottom: `${globalSettings.spacing.list.bottom}px` }}>
-              {resumeData.experience.map(exp => (
+              {resumeData.experience.map(exp => {
+                return (
                 <li key={exp.id} style={{ marginBottom: `${globalSettings.spacing.listItem.bottom}px` }}>
                   <article>
                     <header style={{ marginBottom: `${globalSettings.spacing.header?.bottom}px` }}>
@@ -137,7 +335,7 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
                     )}
                   </article>
                 </li>
-              ))}
+              )})}
             </ul>
           </section>
         )
@@ -153,7 +351,7 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
                 fontWeight: 600
               }}
             >
-              Education
+              {resumeData.sectionNames?.education || 'Education'}
             </h2>
             <ul style={{ marginBottom: `${globalSettings.spacing.list.bottom}px` }}>
               {resumeData.education.map(edu => (
@@ -218,17 +416,9 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
                 fontWeight: 600
               }}
             >
-              Technical Skills
+              {resumeData.sectionNames?.skills || 'Skills'}
             </h2>
-            <p 
-              style={{ 
-                fontFamily: globalSettings.typography.body.fontFamily,
-                fontSize: `${globalSettings.typography.body.fontSize}px`,
-                marginBottom: `${globalSettings.spacing.list.bottom}px`
-              }}
-            >
-              <strong>{resumeData.skills.join(', ')}</strong>
-            </p>
+            {renderSkills()}
           </section>
         )
 

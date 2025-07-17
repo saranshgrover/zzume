@@ -44,6 +44,19 @@ export interface GlobalSettings {
       bottom: number
     }
   }
+  // Template-specific settings (optional)
+  colors?: {
+    primary: string
+    secondary: string
+    accent?: string
+  }
+  layout?: {
+    headerStyle?: 'centered' | 'left-aligned' | 'creative' | 'minimal'
+    sectionDividers?: boolean
+    backgroundPattern?: 'none' | 'dots' | 'lines'
+    skillStyle?: 'tags' | 'bars' | 'list'
+    compactSpacing?: boolean
+  }
 }
 
 export interface ResumeData {
@@ -77,6 +90,7 @@ export interface ResumeData {
   }>
   skills: string[]
   sectionOrder: string[]
+  sectionNames: Record<string, string>
 }
 
 interface ResumeStore {
@@ -84,7 +98,7 @@ interface ResumeStore {
   globalSettings: GlobalSettings
   isHydrated: boolean
   hydrate: () => void
-  setGlobalSettings: (settings: Partial<GlobalSettings>) => void
+  setGlobalSettings: (settings: GlobalSettings | Partial<GlobalSettings>) => void
   updatePersonalInfo: (data: Partial<ResumeData['personalInfo']>) => void
   addExperience: (experience: ResumeData['experience'][0]) => void
   updateExperience: (id: string, experience: Partial<ResumeData['experience'][0]>) => void
@@ -96,6 +110,7 @@ interface ResumeStore {
   reorderEducation: (items: ResumeData['education']) => void
   updateSkills: (skills: string[]) => void
   reorderSections: (sections: string[]) => void
+  updateSectionName: (sectionId: string, name: string) => void
 }
 
 const defaultSettings: GlobalSettings = {
@@ -140,6 +155,14 @@ const defaultSettings: GlobalSettings = {
     header: {
       bottom: 16  // mb-4 = 16px
     }
+  },
+  colors: {
+    primary: '#000000',
+    secondary: '#333333'
+  },
+  layout: {
+    headerStyle: 'minimal',
+    compactSpacing: false
   }
 }
 
@@ -154,7 +177,13 @@ const initialResumeData: ResumeData = {
   experience: [],
   education: [],
   skills: [],
-  sectionOrder: ['personal', 'experience', 'education', 'skills']
+  sectionOrder: ['personal', 'experience', 'education', 'skills'],
+  sectionNames: {
+    personal: 'Personal Info',
+    experience: 'Experience',
+    education: 'Education',
+    skills: 'Skills'
+  }
 }
 
 function loadSettings(): GlobalSettings {
@@ -199,7 +228,7 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     }
   },
 
-  setGlobalSettings: (settings) => {
+  setGlobalSettings: (settings: GlobalSettings | Partial<GlobalSettings>) => {
     const newSettings = { ...get().globalSettings, ...settings }
     set({ globalSettings: newSettings })
     if (typeof window !== 'undefined') {
@@ -304,5 +333,15 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     const newResumeData = { ...state.resumeData, sectionOrder: sections }
     saveResumeData(newResumeData)
     return { resumeData: newResumeData }
-  })
+  }),
+
+  updateSectionName: (sectionId: string, name: string) =>
+    set((state) => {
+      const newResumeData = {
+        ...state.resumeData,
+        sectionNames: { ...state.resumeData.sectionNames, [sectionId]: name }
+      }
+      saveResumeData(newResumeData)
+      return { resumeData: newResumeData }
+    })
 })) 

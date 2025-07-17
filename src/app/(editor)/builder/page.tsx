@@ -14,18 +14,18 @@ import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import { GripVertical } from 'lucide-react'
 import DownloadButton from '@/components/DownloadButton'
-
+import TemplateSelector from '@/components/TemplateSelector'
 
 import '../../globals.css'
 
-
-
 export default function ResumeBuilderPage() {
-  const { resumeData, removeExperience, removeEducation, reorderExperience, reorderEducation, reorderSections, updateSkills } = useResumeStore()
+  const { resumeData, removeExperience, removeEducation, reorderExperience, reorderEducation, reorderSections, updateSkills, updateSectionName } = useResumeStore()
   const [open, setOpen] = useState<{ personal: boolean; exp: boolean; edu: boolean; skills: boolean }>({ personal: false, exp: false, edu: false, skills: false })
   const [expanded, setExpanded] = useState<string | null>(null)
   const [editId, setEditId] = useState<string | null>(null)
   const [editEduId, setEditEduId] = useState<string | null>(null)
+  const [editingSectionName, setEditingSectionName] = useState<string | null>(null)
+  const [editingSectionNameValue, setEditingSectionNameValue] = useState<string>('')
   
   // Resizable divider state
   const [leftPanelWidth, setLeftPanelWidth] = useState(50) // percentage
@@ -84,6 +84,32 @@ export default function ResumeBuilderPage() {
     }
   }, [isDragging])
 
+  const handleSectionNameEdit = (sectionId: string) => {
+    setEditingSectionName(sectionId)
+    setEditingSectionNameValue(resumeData.sectionNames[sectionId] || '')
+  }
+
+  const handleSectionNameSave = () => {
+    if (editingSectionName && editingSectionNameValue.trim()) {
+      updateSectionName(editingSectionName, editingSectionNameValue.trim())
+    }
+    setEditingSectionName(null)
+    setEditingSectionNameValue('')
+  }
+
+  const handleSectionNameCancel = () => {
+    setEditingSectionName(null)
+    setEditingSectionNameValue('')
+  }
+
+  const handleSectionNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSectionNameSave()
+    } else if (e.key === 'Escape') {
+      handleSectionNameCancel()
+    }
+  }
+
   function handleDragEnd(result: DropResult) {
     if (!result.destination) return
     if (result.type === 'experience') {
@@ -139,7 +165,7 @@ export default function ResumeBuilderPage() {
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">Experience</h2>
+              <h2 className="font-semibold text-lg">{resumeData.sectionNames.experience || 'Experience'}</h2>
               <Dialog open={open.exp} onOpenChange={v => { setOpen(o => ({ ...o, exp: v })); if (!v) setEditId(null) }}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
@@ -232,7 +258,7 @@ export default function ResumeBuilderPage() {
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">Education</h2>
+              <h2 className="font-semibold text-lg">{resumeData.sectionNames.education || 'Education'}</h2>
               <Dialog open={open.edu} onOpenChange={v => { setOpen(o => ({ ...o, edu: v })); if (!v) setEditEduId(null) }}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
@@ -318,7 +344,7 @@ export default function ResumeBuilderPage() {
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">Skills</h2>
+              <h2 className="font-semibold text-lg">{resumeData.sectionNames.skills || 'Skills'}</h2>
               <Dialog open={open.skills} onOpenChange={v => setOpen(o => ({ ...o, skills: v }))}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
@@ -390,6 +416,12 @@ export default function ResumeBuilderPage() {
           className="w-full flex flex-col gap-6 overflow-y-auto p-6 bg-gray-50 rounded-lg shadow-lg border border-gray-200 custom-scrollbar"
           style={{ width: `${leftPanelWidth}%` }}
         >
+          {/* Template Selector */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold text-gray-900">Resume Builder</h1>
+            <TemplateSelector />
+          </div>
+
           {/* Sections */}
           <Droppable droppableId="sections" type="sections">
             {(provided) => (
@@ -397,16 +429,55 @@ export default function ResumeBuilderPage() {
                 {resumeData.sectionOrder.map((sectionId, idx) => (
                   <Draggable key={sectionId} draggableId={sectionId} index={idx}>
                     {(dragProvided) => (
-                      <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}>
+                      <div ref={dragProvided.innerRef} {...dragProvided.draggableProps} className="group">
                         <div className="flex items-center gap-2 mb-3">
                           <span {...dragProvided.dragHandleProps} className="cursor-grab p-1 hover:bg-gray-100 rounded">
                             <GripVertical className="w-4 h-4 text-gray-400" />
                           </span>
-                          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            {sectionId === 'personal' ? 'Personal Information' : 
-                             sectionId === 'experience' ? 'Work Experience' :
-                             sectionId === 'education' ? 'Education' :
-                             sectionId === 'skills' ? 'Skills' : sectionId}
+                          <div className="flex items-center gap-2 flex-1">
+                            {editingSectionName === sectionId ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={editingSectionNameValue}
+                                  onChange={(e) => setEditingSectionNameValue(e.target.value)}
+                                  onKeyDown={handleSectionNameKeyDown}
+                                  onBlur={handleSectionNameSave}
+                                  className="text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  autoFocus
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleSectionNameSave}
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50 p-1"
+                                >
+                                  ✓
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleSectionNameCancel}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1"
+                                >
+                                  ✕
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                  {resumeData.sectionNames[sectionId] || sectionId}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleSectionNameEdit(sectionId)}
+                                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                         {renderSection(sectionId)}
