@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useTemplateStore } from '@/lib/templateStore'
 import { TemplateCategory } from '@/lib/templateTypes'
-import { Palette, Briefcase, Sparkles, FileText, GraduationCap } from 'lucide-react'
+import { Palette, Briefcase, FileText, GraduationCap } from 'lucide-react'
 
 const categoryIcons = {
   professional: Briefcase,

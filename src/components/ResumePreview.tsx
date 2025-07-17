@@ -34,13 +34,7 @@ export default function ResumePreview() {
       if (measurementRef.current) {
         // Use the hidden measurement div to get accurate unscaled height
         const contentHeight = measurementRef.current.scrollHeight
-        const contentOffsetHeight = measurementRef.current.offsetHeight
-        const contentClientHeight = measurementRef.current.clientHeight
-        
-        // Account for margins in the available height calculation
         const availableContentHeight = 1056 
-        
-        
         setIsOverflowing(contentHeight > availableContentHeight)
         setOverflowAmount(contentHeight - availableContentHeight)
       } else {
