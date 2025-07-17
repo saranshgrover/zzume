@@ -85,16 +85,16 @@ export default function TemplateSelector() {
             {/* Template Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {filteredTemplates.map((template) => {
-                const Icon = categoryIcons[template.category]
-                const isSelected = selectedTemplate === template.id
+                const Icon = categoryIcons[template.category as keyof typeof categoryIcons]
+                const isSelected = selectedTemplate === template.name
                 
                 return (
                   <Card 
-                    key={template.id}
+                    key={template.name}
                     className={`cursor-pointer transition-all hover:shadow-md hover:scale-105 ${
                       isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                     }`}
-                    onClick={() => handleTemplateSelect(template.id)}
+                    onClick={() => handleTemplateSelect(template.name)}
                   >
                     <CardContent className="p-4 flex flex-col justify-between gap-4">
                         {/* Preview Area */}

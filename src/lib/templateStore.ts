@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { ResumeTemplate } from './templateTypes'
 import { TEMPLATE_DEFINITIONS, TemplateDefinition, TemplateSettings } from './templateGenerator'
 import { useResumeStore } from './store'
 

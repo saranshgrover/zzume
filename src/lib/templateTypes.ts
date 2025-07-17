@@ -1,10 +1,6 @@
 // Import generated types from templateGenerator.ts
 import { 
-  ProfessionalSettings, 
-  CreativeSettings, 
-  MinimalSettings, 
   TemplateSettings,
-  TEMPLATE_DEFINITIONS 
 } from './templateGenerator'
 
 // Template registry for runtime use

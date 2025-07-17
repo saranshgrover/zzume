@@ -15,17 +15,7 @@ export default function ResumePreview() {
   const contentRef = useRef<HTMLDivElement>(null)
   const measurementRef = useRef<HTMLDivElement>(null)
   
-  // Log when measurement ref is available
-  useEffect(() => {
-    if (measurementRef.current) {
-      console.log('Measurement ref mounted:', measurementRef.current)
-    }
-  }, [])
   
-  // Log when resumeData changes
-  useEffect(() => {
-    console.log('ResumeData changed:', resumeData)
-  }, [resumeData])
   
   useEffect(() => {
     function handleResize() {
@@ -50,38 +40,10 @@ export default function ResumePreview() {
         // Account for margins in the available height calculation
         const availableContentHeight = 1056 
         
-        console.log('=== OVERFLOW DEBUG ===')
-        const computedStyle = window.getComputedStyle(measurementRef.current)
-        console.log('Measurement div properties:', {
-          scrollHeight: contentHeight,
-          offsetHeight: contentOffsetHeight,
-          clientHeight: contentClientHeight,
-          style: measurementRef.current.style,
-          className: measurementRef.current.className,
-          paddingTop: computedStyle.paddingTop,
-          paddingBottom: computedStyle.paddingBottom,
-          paddingLeft: computedStyle.paddingLeft,
-          paddingRight: computedStyle.paddingRight,
-          boxSizing: computedStyle.boxSizing
-        })
-        console.log('Global settings:', globalSettings)
-        console.log('Page calculations:', {
-          availableContentHeight,
-          letterSizeHeight: 1056
-        })
-        console.log('Overflow calculation:', {
-          contentHeight,
-          availableContentHeight,
-          isOverflowing: contentHeight > availableContentHeight,
-          overflowAmount: contentHeight - availableContentHeight,
-          percentageUsed: (contentHeight / availableContentHeight * 100).toFixed(2) + '%'
-        })
-        console.log('=== END OVERFLOW DEBUG ===')
         
         setIsOverflowing(contentHeight > availableContentHeight)
         setOverflowAmount(contentHeight - availableContentHeight)
       } else {
-        console.log('measurementRef.current is null')
       }
     }
 
@@ -113,7 +75,6 @@ export default function ResumePreview() {
           backgroundColor: 'white',
           boxSizing: 'border-box'
         }}
-        onLoad={() => console.log('Measurement div loaded')}
       >
         <ResumeContent 
           resumeData={resumeData} 

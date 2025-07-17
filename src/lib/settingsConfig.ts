@@ -1,4 +1,4 @@
-import { 
+import {
   GlobalSettings
 } from './store';
 import { TEMPLATE_DEFINITIONS, TemplateDefinition } from './templateGenerator';
@@ -46,14 +46,6 @@ export const backgroundPatterns = [
   { value: 'dots', label: 'Dots' },
   { value: 'lines', label: 'Lines' },
 ] as const;
-
-type SectionConfig = {
-  icon: any;
-  title: string;
-  color: string;
-  description?: string;
-  fields: any[];
-};
 
 // Automatically generated settings structure from template definitions
 export function getSettingsStructure(templateName: keyof typeof TEMPLATE_DEFINITIONS = 'professional'): TemplateDefinition['settings'] {

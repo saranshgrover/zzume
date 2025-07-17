@@ -1,25 +1,24 @@
 'use client'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useResumeStore, GlobalSettings } from '@/lib/store';
-import { useTemplateStore } from '@/lib/templateStore';
-import { 
-  getSettingsStructure, 
-  getNestedValue, 
-  setNestedValue, 
-  fieldExists,
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
+import {
+  backgroundPatterns,
   fontFamilies,
   fontSizes,
+  getNestedValue,
+  getSettingsStructure,
   headerStyles,
-  skillStyles,
-  backgroundPatterns
+  setNestedValue,
+  skillStyles
 } from '@/lib/settingsConfig';
-import { useState, useEffect } from 'react';
-import { Settings, ChevronDown, Type, Palette, Layout, Ruler } from 'lucide-react';
+import { useResumeStore } from '@/lib/store';
 import { TEMPLATE_DEFINITIONS } from '@/lib/templateGenerator';
+import { useTemplateStore } from '@/lib/templateStore';
+import { ChevronDown, Layout, Palette, Ruler, Settings, Type } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 function Select({ value, onValueChange, options, placeholder }: {
   value: string | number;
@@ -88,11 +87,6 @@ export default function SettingsDialog() {
   const templateKey = selectedTemplate as keyof typeof TEMPLATE_DEFINITIONS;
   const settingsStructure = getSettingsStructure(templateKey);
 
-  // Debug logging
-  console.log('Selected template:', selectedTemplate);
-  console.log('Template key:', templateKey);
-  console.log('Settings structure:', settingsStructure);
-  console.log('Available templates:', Object.keys(TEMPLATE_DEFINITIONS));
 
   const updateSettings = (path: string, value: string | number | boolean) => {
     const newSettings = setNestedValue(globalSettings, path, value);
@@ -106,11 +100,7 @@ export default function SettingsDialog() {
   // Render a single field based on its type
   const renderField = (field: any, fieldPath: string) => {
     const value = getNestedValue(globalSettings, fieldPath);
-    
-    console.log(`Rendering field ${fieldPath}:`, { value, field, globalSettings });
-    
     if (value === undefined) {
-      console.log(`Field ${fieldPath} has undefined value, skipping`);
       return null;
     }
 
@@ -234,14 +224,7 @@ export default function SettingsDialog() {
     fields: flattenSettings(sectionConfig, sectionName)
   }));
 
-  // Debug logging for sections
-  console.log('Sections:', sections);
-  sections.forEach(section => {
-    console.log(`Section ${section.name}:`, section.fields.length, 'fields');
-    section.fields.forEach(field => {
-      console.log(`  Field ${field.path}:`, field.config);
-    });
-  });
+
 
   const getSectionIcon = (sectionName: string) => {
     switch (sectionName) {

@@ -1,5 +1,5 @@
 import { GlobalSettings, ResumeData } from '@/lib/store'
-import { TemplateSettings, ProfessionalSettings, CreativeSettings, MinimalSettings } from '@/lib/templateTypes'
+import { CreativeSettings, MinimalSettings, ProfessionalSettings } from '@/lib/templateGenerator'
 import { useTemplateStore } from '@/lib/templateStore'
 
 interface ResumeContentProps {
@@ -95,7 +95,7 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
   }
 
   const renderCreativeHeader = () => {
-    const settings = globalSettings as CreativeSettings
+    const settings = globalSettings as CreativeSettings 
     return (
       <section aria-label="Personal Information" className="relative">
         {settings.layout?.backgroundPattern === 'dots' && (
