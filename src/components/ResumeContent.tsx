@@ -9,11 +9,10 @@ interface ResumeContentProps {
   isPDF?: boolean
 }
 
-export default function ResumeContent({ resumeData, globalSettings }: ResumeContentProps) {
+export default function ResumeContent({ resumeData, globalSettings, isPDF }: ResumeContentProps) {
   const { selectedTemplate, isHydrated } = useTemplateStore()
   
-  // Don't render until template store is hydrated
-  if (!isHydrated) {
+  if (!isHydrated && !isPDF) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <div className="text-center">
@@ -22,6 +21,8 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
       </div>
     )
   }
+  
+  const effectiveTemplate = isPDF && !isHydrated ? 'minimal' : selectedTemplate
   
   const formatDate = (dateString: string) => {
     if (!dateString) return ''
@@ -259,7 +260,7 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
   }
 
   const renderSkills = () => {
-    if (selectedTemplate === 'creative') {
+    if (effectiveTemplate === 'creative') {
       const settings = globalSettings as CreativeSettings
       if (settings.layout?.skillStyle === 'tags') {
         return (
@@ -300,7 +301,7 @@ export default function ResumeContent({ resumeData, globalSettings }: ResumeCont
   function renderSection(sectionId: string) {
     switch (sectionId) {
       case 'personal':
-        switch (selectedTemplate) {
+        switch (effectiveTemplate) {
           case 'professional':
             return renderProfessionalHeader()
           case 'creative':
